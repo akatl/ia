@@ -46,43 +46,42 @@ def bpa(graph):
         "padre": -1, 
         "costo":0, 
         "profundidad": 0, 
-        "camino": [], 
+        "camino": [ESTADO_INICIAL], 
         "test": False
         }
 
     nodos = [nodo_0]
-    cola = collections.deque([ESTADO_INICIAL])
+    # cola = collections.deque([ESTADO_INICIAL])
+    cola = collections.deque([nodo_0])
     padres = collections.deque([-1])
     sequence  = ""
     
     while cola:
-        estado_actual = cola.popleft()
-        sequence += str(estado_actual) + " "
+        nodo_actual = cola.popleft()
+        id_ppe = padres.popleft()
+        estado_nodo_actual = nodo_actual.get("estado")
+        id_nodo_actual = nodo_actual.get("id")
            
         # Este ciclo se ejecuta una vez por cada vecino que tenga en la grafica
         # estado_actual, si dicho es 2 entonces se ejecuta dos veces
         # por lo tanto basta cambiar de padre solo una vez finalizado el ciclo
-        for vecino in graph[estado_actual]:
+        for vecino in graph[estado_nodo_actual]:
 
-            padres.append(id_ppe)
-            c_padre = nodos[id_ppe]
+            padres.append(id_nodo_actual)
             id_nodo += 1
 
-            new_node = init_node(id_nodo, estado_actual, c_padre)
-            nodos.append(new_node)
+            new_node = init_node(id_nodo, vecino, nodo_actual)
+            cola.append(new_node)
 
-            cola.append(vecino)
-            print("P:", padres)
-        id_ppe += 1
+            # print("P:", padres)
+        # id_ppe += 1
         
-        if estado_actual == ESTADO_FINAL:
-            print("Camino: ", nodos[-1].get("camino"))
+        if estado_nodo_actual == ESTADO_FINAL:
+            print("Camino: ", nodo_actual.get("camino"))
             break
         
         # for nodo in nodos:
             # print(f"NODO: {nodo.get('id')} Padre:{nodo.get('padre')}")
-        
-    print(sequence)
 
 
 
