@@ -1,27 +1,17 @@
 import collections
 
-ESTADO_INICIAL = 4 
-ESTADO_FINAL = 7
+ESTADO_INICIAL = 2 
+ESTADO_FINAL = 4
+SEP = "-" # Separador
+GRAPH = {
+        "1": [2,5], "2":[1, 3], "3":[2, 4], "4":[3, 8],
+        "5":[1,9], "6":[7, 10], "7":[6, 8], "8":[4, 7],
+        "9":[5,13], "10":[6, 11], "11":[10, 12], "12":[11],
+        "13":[9, 14], "14":[13, 15], "15":[14, 16], "16":[15]
+        }
 
-n_nodos = 0
-id_padre = 0
-
-# Si n_k es un nodo y n_k.estado = i para i = 1,..., 17 
-# entonces los estados siguientes son i + 1 e i - 1
-# si n_k.estado = 0 entonces solo i + 1
-# si n_k.estado = 18 entonces solo i - 1
 def test(estado):
     return estado == ESTADO_FINAL
-
-def create_graph():
-    graph = []
-    graph.append([1])
-    for i in range(1, 18):
-        graph.append([i - 1, i + 1])
-        
-    graph.append([18])
-    
-    return graph
 
 def init_node(id, estado, padre):
     new_node = {
@@ -31,15 +21,23 @@ def init_node(id, estado, padre):
         "costo": padre.get("costo") + 1, 
         "profundidad": padre.get("profundidad") + 1, 
         "camino": padre.get("camino") + [estado],
-        "test": False
+        "test": test(estado) 
     }
     
     return new_node 
+    
+def print_node(nodo):
+    for key, value in nodo.items():
+        print(f"{key.title()}: {value}")
+        
+    print(30*SEP)
+
 
 def bpa(graph):
-    id_nodo = 0
-    id_padre = 0
-    id_ppe = 0
+    # Contador del numero de nodos creados
+    id_nodo = 0 
+
+    # Creamos el nodo cero 
     nodo_0 = {
         "id": 0, 
         "estado": ESTADO_INICIAL, 
@@ -47,25 +45,26 @@ def bpa(graph):
         "costo":0, 
         "profundidad": 0, 
         "camino": [ESTADO_INICIAL], 
-        "test": False
+        "test": test(ESTADO_INICIAL)
         }
 
-    nodos = [nodo_0]
-    # cola = collections.deque([ESTADO_INICIAL])
     cola = collections.deque([nodo_0])
     padres = collections.deque([-1])
-    sequence  = ""
     
     while cola:
         nodo_actual = cola.popleft()
-        id_ppe = padres.popleft()
         estado_nodo_actual = nodo_actual.get("estado")
+
         id_nodo_actual = nodo_actual.get("id")
-           
-        # Este ciclo se ejecuta una vez por cada vecino que tenga en la grafica
-        # estado_actual, si dicho es 2 entonces se ejecuta dos veces
-        # por lo tanto basta cambiar de padre solo una vez finalizado el ciclo
-        for vecino in graph[estado_nodo_actual]:
+        id_padre_actual = padres.popleft()
+
+        print_node(nodo_actual)
+
+        if nodo_actual.get("test"):
+            camino_encontrado = nodo_actual.get("camino")
+            return camino_encontrado
+   
+        for vecino in graph[str(estado_nodo_actual)]:
 
             padres.append(id_nodo_actual)
             id_nodo += 1
@@ -73,21 +72,16 @@ def bpa(graph):
             new_node = init_node(id_nodo, vecino, nodo_actual)
             cola.append(new_node)
 
-            # print("P:", padres)
-        # id_ppe += 1
         
-        if estado_nodo_actual == ESTADO_FINAL:
-            print("Camino: ", nodo_actual.get("camino"))
-            break
-        
-        # for nodo in nodos:
-            # print(f"NODO: {nodo.get('id')} Padre:{nodo.get('padre')}")
 
+print("BPA:")
+camino = bpa(GRAPH)
 
-
-grp = create_graph()
-
-
-print("BFS:")
-bpa(grp)
-print(grp)
+if camino:
+    print(30*"<")
+    print("CAMINO ENCONTRADO: ", camino)
+    print(30*">")
+else:
+    print(30*"<")
+    print("CAMINO NO ENCONTRADO")
+    print(30*">")
