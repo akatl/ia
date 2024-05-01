@@ -40,7 +40,6 @@ def funcion_objetivo(solucion, data):
     for i in range(3):
         if contador[i] != 0:
             centroides[i] = centroides[i]/contador[i]
-
    
     for i in range(3):
         for j in range(150):
@@ -65,28 +64,55 @@ obs = normalizar(data)
 # Hill climbing
 # for k in range(30):
 # Generamos la solucion inicial 
-sol_inicial = solucion_inicial()
+for itt in range(30):
+    sol_inicial = solucion_inicial()
+    mejor_sol = np.zeros(150)
+    sol_actual = np.zeros(150)
 
-# vecinos = np.array([150*[0], 150*[0], 150*[0]])
-vecinos = np.zeros((3,150))
-sol_actual = sol_inicial
-costo_actual = funcion_objetivo(sol_actual, obs)
+    mov1 = 0
+    mejor_costo = 0.0
+    costo_actual = 0.0
+    costo_vecino = 0.0
 
-for i in range(100):
-    for j in range(150):
-        for i in range(3):
-            if i != sol_actual[j]:
-                aux = sol_actual[j]
-                sol_actual[j] = i
-                vecinos[i][j] = funcion_objetivo(sol_actual, obs)
-                sol_actual[j] = aux
+# Parametros
+    tempI = 10
+    tempF = 0.001
+    alfa = 0.95
+    temp = 0.0
+
+    maxIt = 150
+# it = 0
+
+# Inicializacion
+    sol_actual = sol_inicial
+    mejor_sol = sol_inicial
+
+    costo_actual = funcion_objetivo(sol_actual, obs)
+    mejor_costo = costo_actual
+
+# Recocido simulado
+    temp = tempI
+    while(temp > tempF):
+        for it in range(maxIt):
+            a = np.random.randint(0,150)
+            mov1 = sol_actual[a]
+            b = np.random.random()
+            if b < 0.5:
+                sol_actual[a] = (sol_actual[a] + 1)%3
             else:
-                vecinos[i][j] = 1000000
+                sol_actual[a] = (sol_actual[a] - 1)%3
+            costo_vecino = funcion_objetivo(sol_actual, obs)
+            v = costo_vecino - costo_actual
+            b = np.random.random()
+            if(b < np.exp((-1)*(v)/(temp))):
+                costo_actual = costo_vecino
+            else:
+                sol_actual[a] = mov1
 
-    m,n = np.unravel_index(np.argmin(vecinos), vecinos.shape)
-    if vecinos[m][n] <= costo_actual:
-        sol_actual[n] = m
-        costo_actual = vecinos[m][n]
-
-print(costo_actual)
-print(sol_actual)
+            if mejor_costo > costo_vecino:
+                mejor_costo = costo_vecino
+                mejor_sol = sol_actual
+        temp = temp*alfa
+        
+    # print(mejor_sol)
+    print(mejor_costo)
